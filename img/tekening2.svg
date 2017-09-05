@@ -1,0 +1,25 @@
+<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="100" width="100" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<defs id="defs4">
+<linearGradient id="linearGradient4813">
+<stop id="stop4891" stop-color="#ff0" offset="0"/>
+<stop id="stop4893" stop-color="#ff0" stop-opacity="0" offset="1"/>
+</linearGradient>
+<radialGradient id="radialGradient4819" xlink:href="#linearGradient4813" gradientUnits="userSpaceOnUse" cy="994.62" cx="50" gradientTransform="matrix(0 -3.3771 1.6196 0 -1560.9 1171.2)" r="12.5"/>
+<radialGradient id="radialGradient4823" xlink:href="#linearGradient4813" gradientUnits="userSpaceOnUse" cy="994.62" cx="50" gradientTransform="matrix(0 -3.3771 1.6196 0 -1695 1147)" r="12.5"/>
+<radialGradient id="radialGradient4829" gradientUnits="userSpaceOnUse" cy="994.62" cx="50" gradientTransform="matrix(0 -3.3771 1.6196 0 -1430.5 1284.1)" r="12.5">
+<stop id="stop4166" stop-color="#ff0" stop-opacity=".6" offset="0"/>
+<stop id="stop4168" offset="1"/>
+</radialGradient>
+</defs>
+<g id="layer1" transform="translate(0 -952.36)">
+<rect id="rect4684" height="100" width="100" y="952.36" x="0"/>
+<path id="path4692" d="m37.5 974.37c0-6.9036 5.5964-12.5 12.5-12.5s12.5 5.5964 12.5 12.5m-12.5 28.03-6.25-14.04l-6.25-14 12.5-0.00001h12.5l-6.25 14z" fill="url(#radialGradient4819)"/>
+<g id="g4807" fill="#ff0">
+<path id="path4688-7" d="m56.964 1039.7-16.65-28.839-16.65-28.839 33.301-0.00001h33.301l-16.65 28.84z" transform="matrix(.37536 0 0 .48545 128.08 495.01)"/>
+<path id="path4692-5" d="m136.96 971.76c0-6.9036 5.5964-12.5 12.5-12.5s12.5 5.5964 12.5 12.5"/>
+</g>
+<path id="path4821" d="m-96.598 950.13c0-6.9036 5.5964-12.5 12.5-12.5s12.5 5.5964 12.5 12.5m-12.5 27.99-6.25-14-6.25-14 12.5-0.00001h12.5l-6.25 14z" fill="url(#radialGradient4823)"/>
+<path id="rect4825" d="m130.36 112.86v100h100v-100h-100zm50 9.51c6.9 0 12.5 5.59 12.5 12.5h-0.01l-6.24 13.99-6.25 14-6.25-14-6.25-13.99v-0.01c0-6.9 5.6-12.49 12.5-12.49z" transform="translate(0 952.36)"/>
+<path id="path4827" opacity=".604" d="m167.86 1087.2c0-6.9036 5.5964-12.5 12.5-12.5s12.5 5.5964 12.5 12.5m-12.5 27.99-6.25-14-6.25-14h12.5 12.5l-6.25 14z" fill="url(#radialGradient4829)"/>
+</g>
+</svg>
