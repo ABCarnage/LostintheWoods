@@ -4,32 +4,56 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<title>Document</title>
-	<link rel="stylesheet" href="style.css">
+	<title>Lost in the Woods</title>
+	<style media="screen">
+	html, body,canvas {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		font-size: 100%;
+		font: inherit;
+		vertical-align: baseline;
+	}
+	body {
+		background-color: black;
+	}
+	#litw
+	{
+	    display:block;
+	    background-color: grey;
+		margin: auto;
+		border: 1px solid #444;
+	}
+	</style>
 </head>
 <body>
 	<canvas id="litw"></canvas>
 	<script>
 	function $(id) { return document.getElementById(id); }
 	$("litw").style.backgroundColor = "black";
+	var cW = document.documentElement.clientWidth-2, cH = document.documentElement.clientHeight-2;
 
-	var cW = document.documentElement.clientWidth, cH = document.documentElement.clientHeight;
 	var ctx = null;
 	var tileW = cH/10, tileH = cH/10;
-	var mapW = 10, mapH = 10;
-	var currentSecond = 0, frameCount = 0, frameLastSecond = 0;
-	var lastFrameTime = 0;
-	/*if(cW > cH)
-	{*/
-		$("litw").setAttribute('width', cW);
+	var mapW = 20, mapH = 20;
+	var off = 5;
+	//var viewH = 8;
+	var currentSecond = 0, frameCount = 0, frameLastSecond = 0, lastFrameTime = 0;
+
+	if(cW > cH)
+	{
+		$("litw").setAttribute('width', cH);
 		$("litw").setAttribute('height', cH);
-		tileW = cH/10, tileH = cH/10;
-/*	} else {
+		tileW = Math.floor(cH/off), tileH = Math.floor(cH/off);
+    } else {
 		$("litw").setAttribute('width', cW);
-		$("litw").setAttribute('height', cH);
-			tileW = cW/10, tileH = cW/10;
-	}*/
+		$("litw").setAttribute('height', cW);
+		tileW = Math.floor(cW/off), tileH = Math.floor(cW/off);
+	}
 	var survived = false;
+    var started = false;
+	var image = new Image(100, 100);
+
 	var keysDown = {
 		37: false,
 		38: false,
@@ -41,17 +65,52 @@
 	var player = new Character();
 
 	var gameMap = [
-		0,0,0,0,0,0,0,0,0,0,
-		0,1,1,1,0,1,0,1,1,0,
-		0,1,1,1,1,1,1,1,1,0,
-		0,1,1,1,1,1,1,1,1,0,
-		0,0,0,1,0,1,0,1,0,0,
-		0,1,1,1,0,1,0,1,1,0,
-		0,1,1,1,1,1,2,3,1,0,
-		0,1,1,1,0,1,4,5,1,0,
-		0,1,1,1,1,1,1,1,1,0,
-		0,0,0,0,0,0,0,0,0,0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,
+		0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0,
+		0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
+		0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
+		0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,
+		0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0,
+		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0,
+		0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0,
+		0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0,
+		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0,
+		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0,
+		0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+		0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+		0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 2, 3, 1, 1, 1, 0, 1, 1, 0,
+		0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 4, 5, 0, 1, 1, 0, 0, 0, 0,
+		0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0,
+		0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0,
+		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	];
+
+	var viewport = {
+		screen		: [0,0],
+		startTile	: [0,0],
+		endTile		: [0,0],
+		offset		: [0,0],
+		update		: function(px, py) {
+			this.offset[0] = Math.floor((this.screen[0]/2) - px);
+			this.offset[1] = Math.floor((this.screen[1]/2) - py);
+
+			var tile = [ Math.floor(px/tileW), Math.floor(py/tileH) ];
+
+			this.startTile[0] = tile[0] - 1 - Math.ceil((this.screen[0]/2) / tileW);
+			this.startTile[1] = tile[1] - 1 - Math.ceil((this.screen[1]/2) / tileH);
+
+			if(this.startTile[0] < 0) { this.startTile[0] = 0; }
+			if(this.startTile[1] < 0) { this.startTile[1] = 0; }
+
+			this.endTile[0] = tile[0] + 1 + Math.ceil((this.screen[0]/2) / tileW);
+			this.endTile[1] = tile[1] + 1 + Math.ceil((this.screen[1]/2) / tileH);
+
+			if(this.endTile[0] >= mapW) { this.endTile[0] = mapW-1; }
+			if(this.endTile[1] >= mapH) { this.endTile[1] = mapH-1; }
+		}
+	};
 
 	function Character()
 	{
@@ -121,8 +180,9 @@
 		ctx.fillText("Click to continue.", 50,100);
 		window.addEventListener("keydown", function(e){
 			var keyC = e.keyCode;
-			if(keyC==32)
+			if(keyC==32 && !started)
 			{
+                started = true;
 				window.removeEventListener("keydown", function(e){});
 				requestAnimationFrame(drawGame);
 				ctx.font = "bold 10pt sans-serif";
@@ -142,6 +202,10 @@
 					}
 				});
 
+                viewport.screen = [
+                    $("litw").width,
+                    $("litw").height
+                ]
 			}
 
 		});
@@ -193,9 +257,16 @@
 			}
 		}
 
-		for(var y = 0; y < mapH; y++)
+        viewport.update(player.position[0]+(player.dimensions[0]/2),
+                        player.position[1]+(player.dimensions[1]/2)
+        );
+
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0,0,viewport.screen[0],viewport.screen[1]);
+
+		for(var y = viewport.startTile[1]; y <= viewport.endTile[1]; y++)
 		{
-			for(var x = 0; x < mapW; x++)
+			for(var x = viewport.startTile[0]; x <= viewport.endTile[0]; x++)
 			{
 				switch (gameMap[((y*mapW)+x)]) {
 					case 0:
@@ -207,7 +278,8 @@
 					default:
 						ctx.fillStyle = "blue";
 				}
-				ctx.fillRect(x*tileW, y*tileH, tileW, tileH)
+                //console.log(viewport.offset[0]+";"+viewport.offset[1]);
+				ctx.fillRect(Math.floor(viewport.offset[0]+x*tileW), Math.floor(viewport.offset[1]+y*tileH), tileW, tileH)
 			}
 		}
 	ctx.fillStyle = "#0000ff";
@@ -232,7 +304,7 @@
 				for(var x=0; x<hairPart[y].length;x++)
 				{
 						ctx.fillStyle = colorCode[hairPart[y][x]];
-						ctx.fillRect(Math.floor(player.position[0]+x*(tileH/16)), Math.round(player.position[1]+y*(tileH/16)),tileH/16,tileW/16);
+						ctx.fillRect(viewport.offset[0]+Math.floor(player.position[0]+x*(tileH/16)), Math.round(viewport.offset[1]+player.position[1]+y*(tileH/16)),tileH/16,tileW/16);
 				}
 			}
 		}
@@ -247,7 +319,7 @@
 				for(var x=0; x<hairPart[y].length;x++)
 				{
 						ctx.fillStyle = colorCode[hairPart[y][x]];
-						ctx.fillRect(player.position[0]+x*(tileH/16), player.position[1]+y*(tileH/16),tileH/16,tileW/16);
+						ctx.fillRect(Math.floor(viewport.offset[0]+player.position[0]+x*(tileH/16)), Math.floor(viewport.offset[1]+player.position[1]+y*(tileH/16)),Math.floor(tileH/16),Math.floor(tileW/16));
 				}
 			}
 
@@ -281,16 +353,24 @@
 			survived = true;
 
 		}
+
+		image.src = "img/tekening3.svg";
+		ctx.drawImage(image, 0, 0, cH, cH);
 		if(survived)
 		{
 			ctx.fillStyle = "#ff7777";
 			ctx.fillText("You survived!", 50,100);
 		}
 
-	ctx.fillStyle = "#ff0000";
-	ctx.fillText("FPS: "+frameLastSecond, 10,20);
-	lastFrameTime = currentFrameTime;
-	requestAnimationFrame(drawGame);
+		ctx.fillStyle = "#ff0000";
+		ctx.fillText("FPS: "+frameLastSecond, 10,20);
+		if(lastFrameTime = currentFrameTime)
+		{
+			requestAnimationFrame(drawGame);
+		}
+
+
+
 	}
 	</script>
 </body>
