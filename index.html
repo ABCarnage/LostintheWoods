@@ -201,10 +201,10 @@
 		this.timeMoved = 0;
 		this.dimensions = [tileW,tileH];
 		this.position = [tileW,tileH];
-		this.delayMove = 400;
+		this.delayMove = 700;
 		this.moving = false;
 		this.direction = "U";
-		this.steps = 5;
+		this.steps = 2;
 	}
 
 	Character.prototype.placeAt = function (x,y) {
@@ -306,13 +306,27 @@
 
 	}
 
-	function changeSteps(d)
+	function changeSteps(d,m)
 	{
-		if(player.moving)
+		if(m)
 		{
-			var steps = 5;
-			var stepTime = player.delayMove/3;
+			var firstStep = "left";
+			var timeStep = (player.delayMove)/player.steps;
+			var timeMoved = (Date.now()-player.timeMoved);
+			console.log(timeStep);
+			/*console.log(timeMoved);
+			console.log(bootPartL);*/
+			console.log(Math.ceil(timeMoved/timeStep)%timeStep);
+			if(Math.ceil(timeMoved/timeStep)%timeStep == 0)
+			{
+				return pantsPartL;
+			} else{
+				return bootPartL;
+			}
 
+		} else
+		{
+			return bootpantsPartL;
 		}
 	}
 
@@ -326,7 +340,9 @@
 		{
 			cloneArray(facePartL,lf);
 			cloneArray(hairPartR,rf);
-			changeSteps();
+			//changeSteps(d,m);
+			//console.log(m);
+			cloneArray(changeSteps(d,m), lb);
 		}
 		if(d =="U")
 		{
@@ -463,7 +479,7 @@
 
 
 		//console.log(keysDown);
-		generatePlayer(player.direction, this.moving);
+		generatePlayer(player.direction, player.moving);
 
 		if(gameMap[toIndex(player.tileTo[0],player.tileTo[1])]==4)
 		{
