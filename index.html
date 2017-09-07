@@ -37,8 +37,7 @@
 	var tileW = cH/10, tileH = cH/10;
 	var mapW = 20, mapH = 20;
 	var off = 5;
-	//var viewH = 8;
-	var currentSecond = 0, frameCount = 0, frameLastSecond = 0, lastFrameTime = 0;
+	var lastSecond = 0, currentSecond = 0, frameCount = 0, frameLastSecond = 0, lastFrameTime = 0;
 
 	if(cW > cH)
 	{
@@ -53,6 +52,7 @@
 	var survived = false;
     var started = false;
 	var image = new Image(100, 100);
+	var timer = 120;
 
 	var keysDown = {
 		37: false,
@@ -60,6 +60,88 @@
 		39: false,
 		40: false
 	}
+
+	var colorCode = ["#000","#431","#49B", "#000", "#E96","#129", "#a22"] // 0 = nothing, 1 = hair brown, 2 = shirt blue, 3 = eye black, 4 = skin rose, 5 = pants blue, 6 = boots red
+	var hairPartL = [
+					[0,0,0,0,0,1,1,1],
+					[0,0,0,0,1,1,1,1],
+					[0,0,0,1,1,1,1,1],
+					[0,0,0,1,1,1,1,1],
+					[0,0,0,1,1,1,1,1],
+					[0,0,0,1,1,1,1,1],
+					[0,0,0,0,1,1,1,1],
+					[0,0,0,2,2,1,1,1]
+				];
+	var hairPartR = [];
+
+	var facePartL = [
+					[0,0,0,0,0,1,1,1],
+					[0,0,0,0,1,1,1,1],
+					[0,0,0,0,1,1,1,1],
+					[0,0,0,0,4,4,4,4],
+					[0,0,0,4,4,3,4,4],
+					[0,0,0,4,4,3,4,4],
+					[0,0,0,0,4,4,4,4],
+					[0,0,0,2,2,4,4,4]
+				];
+	var facePartR = [];
+
+	var bootpantsPartL = [
+					[0,0,2,2,2,2,2,2],
+					[0,0,4,4,2,2,2,2],
+					[0,0,4,4,2,2,2,2],
+					[0,0,0,0,2,2,2,2],
+					[0,0,0,0,5,5,5,5],
+					[0,0,0,0,5,5,5,5],
+					[0,0,0,6,6,6,6,6],
+					[0,0,0,0,6,6,6,0]
+				];
+	var bootpantsPartR = [];
+
+	var bootPartL = [
+					[0,0,2,2,2,2,2,2],
+					[0,0,4,4,2,2,2,2],
+					[0,0,4,4,2,2,2,2],
+					[0,0,0,0,2,2,2,2],
+					[0,0,0,0,6,6,6,5],
+					[0,0,0,6,6,6,6,6],
+					[0,0,0,6,6,6,6,6],
+					[0,0,0,0,6,6,6,0]
+				];
+	var bootPartR = [];
+
+	var pantsPartL = [
+					[0,0,2,2,2,2,2,2],
+					[0,0,4,4,2,2,2,2],
+					[0,0,4,4,2,2,2,2],
+					[0,0,0,0,2,2,2,2],
+					[0,0,0,0,5,5,5,5],
+					[0,0,0,0,0,5,5,5],
+					[0,0,0,0,0,0,0,0],
+					[0,0,0,0,0,0,0,0]
+				];
+	var pantsPartR = [];
+
+
+	function cloneReverseArray(PartL, PartR){
+		cloneArray(PartL, PartR);
+
+		for(var i=0; i<PartR.length;i++)
+		{
+			PartR[i].reverse();
+		}
+	};
+	function cloneArray(original, newarr){
+		for (var i = 0; i < original.length; i++)
+		{
+		    newarr[i] = original[i].slice();
+		}
+	};
+	cloneReverseArray(hairPartL, hairPartR);
+	cloneReverseArray(facePartL, facePartR);
+	cloneReverseArray(bootpantsPartL, bootpantsPartR);
+	cloneReverseArray(bootPartL, bootPartR);
+	cloneReverseArray(pantsPartL, pantsPartR);
 
 
 	var player = new Character();
@@ -120,6 +202,9 @@
 		this.dimensions = [tileW,tileH];
 		this.position = [tileW,tileH];
 		this.delayMove = 400;
+		this.moving = false;
+		this.direction = "U";
+		this.steps = 5;
 	}
 
 	Character.prototype.placeAt = function (x,y) {
@@ -137,9 +222,11 @@
 		}
 		if((t-this.timeMoved)>=this.delayMove)
 		{
+			player.moving = false;
 			this.placeAt(this.tileTo[0],this.tileTo[1]);
 		}
 		else {
+			player.moving = true;
 			this.position[0]=(this.tileFrom[0]*tileW)+((tileW-this.dimensions[0])/2);
 			this.position[1]=(this.tileFrom[1]*tileH)+((tileW-this.dimensions[1])/2);
 			if(this.tileTo[0]!=this.tileFrom[0])
@@ -171,6 +258,7 @@
 		startMenu();
 	};
 
+
 	function startMenu()
 	{
 		ctx.fillStyle = "#000";
@@ -183,7 +271,6 @@
 			if(keyC==32 && !started)
 			{
                 started = true;
-				window.removeEventListener("keydown", function(e){});
 				requestAnimationFrame(drawGame);
 				ctx.font = "bold 10pt sans-serif";
 
@@ -191,6 +278,11 @@
 					var keyC = e.keyCode;
 					if(keyC>=37&&keyC<=40)
 					{
+
+						for (var key in keysDown)
+						{
+							keysDown[key] = false;
+						}
 						keysDown[keyC] = true;
 					}
 				});
@@ -214,6 +306,84 @@
 
 	}
 
+	function changeSteps(d)
+	{
+		if(player.moving)
+		{
+			var steps = 5;
+			var stepTime = player.delayMove/3;
+
+		}
+	}
+
+	function generatePlayer(d, m)
+	{
+		var lf = [], rf = [], lb = [], rb = [], temporary = [], coorPart = [0,0]; // left, face, right, body, temporary = part to be written, coorPart = coordinate of the parts;
+		cloneArray(bootpantsPartL,lb);
+		cloneArray(bootpantsPartR,rb);
+
+		if(d =="L")
+		{
+			cloneArray(facePartL,lf);
+			cloneArray(hairPartR,rf);
+			changeSteps();
+		}
+		if(d =="U")
+		{
+			cloneArray(hairPartL,lf);
+			cloneArray(hairPartR,rf);
+		}
+		if(d =="R")
+		{
+			cloneArray(hairPartL,lf);
+			cloneArray(facePartR,rf);
+		}
+		if(d =="D")
+		{
+			cloneArray(facePartL,lf);
+			cloneArray(facePartR,rf);
+		}
+		for(var i = 1; i<=4; i++)
+		{
+			switch (i)
+			{
+				case 1:
+					cloneArray(lf,temporary);
+					coorPart = [0,0];
+				break;
+				case 2:
+					cloneArray(rf,temporary);
+					coorPart = [1,0];
+				break;
+				case 3:
+					cloneArray(lb,temporary);
+					coorPart = [0,1];
+				break;
+				case 4:
+					cloneArray(rb,temporary);
+					coorPart = [1,1];
+				break;
+				default:
+			}
+			for(var y=0; y<temporary.length;y++)
+			{
+				for(var x=0; x<temporary[y].length;x++)
+				{
+					if(temporary[y][x]!=0)
+					{
+						ctx.fillStyle = colorCode[temporary[y][x]];
+						ctx.fillRect((coorPart[0]*tileW/2)+Math.floor(viewport.offset[0]+player.position[0]+x*(tileW/16)), Math.floor((coorPart[1]*tileH/2)+viewport.offset[1]+player.position[1]+y*(tileH/16)-(tileH/4)),Math.ceil(tileH/16),Math.ceil(tileW/16));
+					}
+				}
+			}
+		}
+
+
+
+
+
+	}
+
 	function drawGame()
 	{
 		if (ctx == null)
@@ -225,6 +395,7 @@
 		var sec = Math.floor(Date.now()/1000);
 		if(sec!=currentSecond)
 		{
+			timer--;
 			currentSecond = sec;
 			frameLastSecond = frameCount;
 			frameCount = 1;
@@ -237,18 +408,22 @@
 		{
 			if(keysDown[37] && player.tileFrom[0]>0&& gameMap[toIndex(player.tileFrom[0]-1,player.tileFrom[1])]!=0)
 			{
+				player.direction = "L";
 				player.tileTo[0]-=1;
 			} else
 			if(keysDown[38] && player.tileFrom[1]>0&& gameMap[toIndex(player.tileFrom[0],player.tileFrom[1]-1)]!=0)
 			{
+				player.direction = "U";
 				player.tileTo[1]-=1;
 			} else
 			if(keysDown[39] && player.tileFrom[0]<(mapW-1)&& gameMap[toIndex(player.tileFrom[0]+1,player.tileFrom[1])]!=0)
 			{
+				player.direction = "R";
 				player.tileTo[0]+=1;
 			} else
 			if(keysDown[40] && player.tileFrom[1]<(mapH-1)&& gameMap[toIndex(player.tileFrom[0],player.tileFrom[1]+1)]!=0)
 			{
+				player.direction = "D";
 				player.tileTo[1]+=1;
 			}
 			if(player.tileFrom[0]!=player.tileTo[0] || player.tileFrom[1]!=player.tileTo[1])
@@ -256,6 +431,8 @@
 				player.timeMoved = currentFrameTime;
 			}
 		}
+		/*console.log(player.direction);
+		console.log(player.moving);*/
 
         viewport.update(player.position[0]+(player.dimensions[0]/2),
                         player.position[1]+(player.dimensions[1]/2)
@@ -282,71 +459,11 @@
 				ctx.fillRect(Math.floor(viewport.offset[0]+x*tileW), Math.floor(viewport.offset[1]+y*tileH), tileW, tileH)
 			}
 		}
-	ctx.fillStyle = "#0000ff";
-	//ctx.fillRect(player.position[0], player.position[1],player.dimensions[0],player.dimensions[1]);
-
-	function drawPlayer(direction)
-	{
-		var colorCode = ["#000","#431","#49B"]
-		var hairPart = [[0,0,0,0,0,1,1,1],
-						[0,0,0,0,1,1,1,1],
-						[0,0,0,1,1,1,1,1],
-						[0,0,0,1,1,1,1,1],
-						[0,0,0,1,1,1,1,1],
-						[0,0,0,1,1,1,1,1],
-						[0,0,0,0,1,1,1,1],
-						[0,0,0,2,2,1,1,1]]
-		//var facePart = [{},{},{},{},{},{},{},{}]
-		if(direction =="S")
-		{
-			for(var y=0; y<hairPart.length;y++)
-			{
-				for(var x=0; x<hairPart[y].length;x++)
-				{
-						ctx.fillStyle = colorCode[hairPart[y][x]];
-						ctx.fillRect(viewport.offset[0]+Math.floor(player.position[0]+x*(tileH/16)), Math.round(viewport.offset[1]+player.position[1]+y*(tileH/16)),tileH/16,tileW/16);
-				}
-			}
-		}
-		if(direction =="L")
-		{
-
-		}
-		//console.log(hairPart.length);
-		if(direction =="R") {
-			for(var y=0; y<hairPart.length;y++)
-			{
-				for(var x=0; x<hairPart[y].length;x++)
-				{
-						ctx.fillStyle = colorCode[hairPart[y][x]];
-						ctx.fillRect(Math.floor(viewport.offset[0]+player.position[0]+x*(tileH/16)), Math.floor(viewport.offset[1]+player.position[1]+y*(tileH/16)),Math.floor(tileH/16),Math.floor(tileW/16));
-				}
-			}
-
-		}
-	}
+		ctx.fillStyle = "#0000ff";
 
 
-		if(keysDown[37])
-		{
-			drawPlayer("L");
-		} else
-		if(keysDown[38])
-		{
-
-		} else
-		if(keysDown[39])
-		{
-			drawPlayer("R");
-		} else
-		if(keysDown[40])
-		{
-
-		}
-		if(!(keysDown[37]&&keysDown[38]&&keysDown[39]&&keysDown[40]))
-		{
-			drawPlayer("S");
-		}
+		//console.log(keysDown);
+		generatePlayer(player.direction, this.moving);
 
 		if(gameMap[toIndex(player.tileTo[0],player.tileTo[1])]==4)
 		{
@@ -354,22 +471,30 @@
 
 		}
 
-		image.src = "img/tekening3.svg";
+		//image.src = "img/tekening5.svg";
 		ctx.drawImage(image, 0, 0, cH, cH);
 		if(survived)
 		{
 			ctx.fillStyle = "#ff7777";
-			ctx.fillText("You survived!", 50,100);
+			ctx.fillText("You survived!YiHa", 50,100);
 		}
 
 		ctx.fillStyle = "#ff0000";
 		ctx.fillText("FPS: "+frameLastSecond, 10,20);
+
+		ctx.fillStyle = "#ff0000";
+		ctx.fillText("Sec: "+timer, 70,20);
+//	console.log(keysDown);
+		if(currentSecond == timer)
+		{
+			console.log("Done?");
+		}
+
+
 		if(lastFrameTime = currentFrameTime)
 		{
 			requestAnimationFrame(drawGame);
 		}
-
-
 
 	}
 	</script>
