@@ -38,21 +38,25 @@
 	var mapW = 20, mapH = 20;
 	var off = 5;
 	var lastSecond = 0, currentSecond = 0, frameCount = 0, frameLastSecond = 0, lastFrameTime = 0;
+	var dimension;
 
 	if(cW > cH)
 	{
 		$("litw").setAttribute('width', cH);
 		$("litw").setAttribute('height', cH);
 		tileW = Math.floor(cH/off), tileH = Math.floor(cH/off);
+		dimension = cH;
     } else {
 		$("litw").setAttribute('width', cW);
 		$("litw").setAttribute('height', cW);
 		tileW = Math.floor(cW/off), tileH = Math.floor(cW/off);
+		dimension = cW;
 	}
 	var survived = false;
     var started = false;
 	var image = new Image(100, 100);
-	var timer = 120;
+	var notebook = new Image(100, 100);
+	var timer = 5;
 
 	var keysDown = {
 		37: false,
@@ -205,6 +209,7 @@
 		this.moving = false;
 		this.direction = "U";
 		this.steps = 2;
+		this.name = "ROBERT";
 	}
 
 	Character.prototype.placeAt = function (x,y) {
@@ -258,21 +263,68 @@
 		startMenu();
 	};
 
+	var story = {
+		start: 1,
+		beginning: [	["day 55 after the apoc"],
+						["rumors about zombies approaching"],
+						["had to search for food"],
+						["now it's night"],
+						["gotta find my way to my cabin"],
+					],
+		ending: {
+					good:["made it."],
+					bad:["zombies... fuck..."]
+				}
+	};
+
+
+	function DrawNotebook(){
+		notebook.src = "img/notebook2.svg";
+		ctx.drawImage(notebook, 0, 0, dimension, dimension);
+		ctx.fillStyle = "#000";
+		ctx.font = "bold "+dimension/65+"pt sans-serif";
+		for(var i=0; i<story.beginning.length; i++)
+		{
+			var string = story.beginning[i][0].toUpperCase();
+			ctx.fillText(string,(dimension/3.25), (dimension/4.6)+i*(dimension/12));
+		}
+		if(!story.start)
+		{
+			if(survived)
+			{
+				var string = story.ending.good[0].toUpperCase();
+				ctx.fillText(string,(dimension/3.25), (dimension/4.6)+5*(dimension/12));
+			} else{
+				var string = story.ending.bad[0].toUpperCase();
+				ctx.fillText(string,(dimension/3.25), (dimension/4.6)+5*(dimension/12));
+				image.src = "img/bloodsplat.svg";
+				ctx.drawImage(image, 0, 0, cH, cH);
+
+			}
+				ctx.fillText(player.name,(dimension/3.25), (dimension/4.6)+6*(dimension/12));
+		} else {
+			ctx.fillStyle = "#FFF";
+			ctx.font = "bold "+dimension/40+"pt sans-serif";
+			ctx.fillText("SPACE TO START", dimension/2.7, dimension/1.1);
+		}
+
+		requestAnimationFrame(DrawNotebook);
+	};
+
 
 	function startMenu()
 	{
 		ctx.fillStyle = "#000";
-		ctx.fillRect(0, 0, cW, cH);
-		ctx.fillStyle = "#FFF";
-		ctx.font = "bold 50pt sans-serif";
-		ctx.fillText("Click to continue.", 50,100);
+		ctx.fillRect(0, 0, dimension, dimension);
+		requestAnimationFrame(DrawNotebook);
+
 		window.addEventListener("keydown", function(e){
 			var keyC = e.keyCode;
 			if(keyC==32 && !started)
 			{
                 started = true;
 				requestAnimationFrame(drawGame);
-				ctx.font = "bold 10pt sans-serif";
+
 
 				window.addEventListener("keydown", function(e){
 					var keyC = e.keyCode;
@@ -402,6 +454,7 @@
 
 	function drawGame()
 	{
+			ctx.font = "bold 10pt sans-serif";
 		if (ctx == null)
 		{
 			return;
@@ -486,33 +539,34 @@
 			survived = true;
 
 		}
-
-		//image.src = "img/tekening5.svg";
+		image.src = "img/tekening5.svg";
 		ctx.drawImage(image, 0, 0, cH, cH);
-		if(survived)
-		{
-			ctx.fillStyle = "#ff7777";
-			ctx.fillText("You survived!YiHa", 50,100);
-		}
 
 		ctx.fillStyle = "#ff0000";
 		ctx.fillText("FPS: "+frameLastSecond, 10,20);
 
 		ctx.fillStyle = "#ff0000";
 		ctx.fillText("Sec: "+timer, 70,20);
-//	console.log(keysDown);
-		if(currentSecond == timer)
+
+		/*if(survived)
 		{
-			console.log("Done?");
-		}
-
-
-		if(lastFrameTime = currentFrameTime)
+			ctx.fillStyle = "#ff7777";
+			ctx.fillText("You survived!YiHa", 50,100);
+		}*/
+		if(timer == 0 || survived)
+		{
+			story.start = 0;
+			DrawNotebook();
+		} else if(lastFrameTime = currentFrameTime)
 		{
 			requestAnimationFrame(drawGame);
 		}
 
 	}
+
+
+
+
 	</script>
 </body>
 </html>
