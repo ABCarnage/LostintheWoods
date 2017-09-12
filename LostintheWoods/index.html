@@ -34,15 +34,17 @@
 	var cW = document.documentElement.clientWidth-2, cH = document.documentElement.clientHeight-2;
 	var ctx = null;
 	var tileW = cH/10, tileH = cH/10;
-	var mapW = 20, mapH = 20;
+	var mapW = 30, mapH = 32;
 	var off = 5;
 	var lastSecond = 0, currentSecond = 0, frameCount = 0, frameLastSecond = 0, lastFrameTime = 0;
 	var dimension;
 	var survived = false;
     var started = false;
-	var image = new Image(100, 100);
+	var darkness = new Image(100, 100);
 	var notebook = new Image(100, 100);
 	var bloodsplat = new Image(100, 100);
+	var tree = new Image (14,22);
+	var cabin = new Image(32,30);
 	var timer = 120;
 
 	if(cW > cH)
@@ -79,7 +81,8 @@
 				}
 	};
 
-	var colorCode = ["#000","#431","#49B", "#000", "#E96","#129", "#a22"] // 0 = nothing, 1 = hair brown, 2 = shirt blue, 3 = eye black, 4 = skin rose, 5 = pants blue, 6 = boots red
+	var colorCode = ["#000","#431","#49B", "#000", "#E96","#129", "#a22"]
+	// 0 = nothing, 1 = hair brown, 2 = shirt blue, 3 = eye black, 4 = skin rose, 5 = pants blue, 6 = boots red, 7 = tree leaf green, 8 = tree brown
 	var hairPartL = [
 					[0,0,0,0,0,1,1,1],
 					[0,0,0,0,1,1,1,1],
@@ -140,8 +143,6 @@
 				];
 	var pantsPartR = [];
 
-
-
 	function cloneReverseArray(PartL, PartR){
 		cloneArray(PartL, PartR);
 
@@ -166,27 +167,41 @@
 	var player = new Character();
 
 	var gameMap = [
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,
-		0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0,
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
-		0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0,
-		0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0,
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0,
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0,
-		0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0,
-		0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0,
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0,
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-		0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0,
-		0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 2, 3, 0, 1, 1, 0, 1, 1, 0,
-		0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 4, 5, 0, 1, 1, 0, 0, 0, 0,
-		0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0,
-		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,1,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,2,3,0,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,4,5,0,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	];
+
+
 
 	var viewport = {
 		screen		: [0,0],
@@ -213,17 +228,17 @@
 		}
 	};
 
+	// player object
 	function Character()
 	{
-		this.tileFrom = [1,1];
-		this.tileTo = [1,1];
+		this.tileFrom = [2,2];
+		this.tileTo = [2,2];
 		this.timeMoved = 0;
 		this.dimensions = [tileW,tileH];
-		this.position = [tileW,tileH];
-		this.delayMove = 700;
+		this.position = [tileW*2,tileH*2];
+		this.delayMove = 400;
 		this.moving = false;
 		this.direction = "U";
-		this.steps = 2;
 		this.name = "ROBERT";
 	}
 
@@ -234,8 +249,10 @@
 			((tileW*y)+((tileW-this.dimensions[1])/2))];
 	};
 
+	// can my character move?
 	Character.prototype.processMovement = function (t)
 	{
+
 		if(this.tileFrom[0]==this.tileTo[0]&&this.tileFrom[1]==this.tileTo[1])
 		{
 			return false;
@@ -267,51 +284,11 @@
 		return true;
 	};
 
-	function toIndex(x, y)
-	{
-		return ((y*mapW)+x);
-	}
-
 	window.onload = function()
 	{
 		ctx = $("litw").getContext("2d");
 		startMenu();
 	};
-
-
-	function DrawNotebook(){
-		notebook.src = "img/notebook.svg";
-		ctx.drawImage(notebook, 0, 0, dimension, dimension);
-		ctx.fillStyle = "#000";
-		ctx.font = "bold "+dimension/65+"pt sans-serif";
-		for(var i=0; i<story.beginning.length; i++)
-		{
-			var string = story.beginning[i][0].toUpperCase();
-			ctx.fillText(string,(dimension/3.25), (dimension/4.6)+i*(dimension/12));
-		}
-		if(!story.start)
-		{
-			if(survived)
-			{
-				var string = story.ending.good[0].toUpperCase();
-				ctx.fillText(string,(dimension/3.25), (dimension/4.6)+5*(dimension/12));
-			} else{
-				var string = story.ending.bad[0].toUpperCase();
-				ctx.fillText(string,(dimension/3.25), (dimension/4.6)+5*(dimension/12));
-				bloodsplat.src = "img/bloodsplat.svg";
-				ctx.drawImage(bloodsplat, 0, 0, cH, cH);
-
-			}
-				ctx.fillText(player.name,(dimension/3.25), (dimension/4.6)+6*(dimension/12));
-		} else {
-			ctx.fillStyle = "#FFF";
-			ctx.font = "bold "+dimension/40+"pt sans-serif";
-			ctx.fillText("SPACE TO START", dimension/2.7, dimension/1.1);
-		}
-
-		requestAnimationFrame(DrawNotebook);
-	};
-
 
 	function startMenu()
 	{
@@ -354,9 +331,49 @@
 			}
 
 		});
+	};
+
+	// draw notebook for beginning and ending
+	function DrawNotebook(){
+		notebook.src = "img/notebook.svg";
+		ctx.drawImage(notebook, 0, 0, dimension, dimension);
+		ctx.fillStyle = "#000";
+		ctx.font = "bold "+dimension/65+"pt sans-serif";
+		for(var i=0; i<story.beginning.length; i++)
+		{
+			var string = story.beginning[i][0].toUpperCase();
+			ctx.fillText(string,(dimension/3.25), (dimension/4.6)+i*(dimension/12));
+		}
+		if(!story.start)
+		{
+			if(survived)
+			{
+				var string = story.ending.good[0].toUpperCase();
+				ctx.fillText(string,(dimension/3.25), (dimension/4.6)+5*(dimension/12));
+			} else{
+				var string = story.ending.bad[0].toUpperCase();
+				ctx.fillText(string,(dimension/3.25), (dimension/4.6)+5*(dimension/12));
+				bloodsplat.src = "img/bloodsplat.svg";
+				ctx.drawImage(bloodsplat, 0, 0, cH, cH);
+
+			}
+				ctx.fillText(player.name,(dimension/3.25), (dimension/4.6)+6*(dimension/12));
+		} else {
+			ctx.fillStyle = "#FFF";
+			ctx.font = "bold "+dimension/40+"pt sans-serif";
+			ctx.fillText("SPACE TO START", dimension/2.7, dimension/1.1);
+		}
+
+		requestAnimationFrame(DrawNotebook);
+	};
+
+	function toIndex(x, y)
+	{
+		return ((y*mapW)+x);
 	}
 
-	function generatePlayer(d, m)
+
+	function generatePlayer(d)
 	{
 		var lf = [], rf = [], lb = [], rb = [], temporary = [], coorPart = [0,0]; // left, face, right, body, temporary = part to be written, coorPart = coordinate of the parts;
 		cloneArray(bootpantsPartL,lb);
@@ -417,15 +434,11 @@
 			}
 		}
 
-
-
-
-
 	}
 
 	function drawGame()
 	{
-			ctx.font = "bold 10pt sans-serif";
+		ctx.font = "bold 10pt sans-serif";
 		if (ctx == null)
 		{
 			return;
@@ -471,8 +484,6 @@
 				player.timeMoved = currentFrameTime;
 			}
 		}
-		/*console.log(player.direction);
-		console.log(player.moving);*/
 
         viewport.update(player.position[0]+(player.dimensions[0]/2),
                         player.position[1]+(player.dimensions[1]/2)
@@ -485,37 +496,58 @@
 		{
 			for(var x = viewport.startTile[0]; x <= viewport.endTile[0]; x++)
 			{
-				switch (gameMap[((y*mapW)+x)]) {
+				switch(gameMap[((y*mapW)+x)]) {
 					case 0:
 						ctx.fillStyle = "#060";
 						break;
-					case 1:
-						ctx.fillStyle = "#650";
-						break;
+					case 2:
 					default:
-						ctx.fillStyle = "blue";
+						ctx.fillStyle = "#650";
 				}
-                //console.log(viewport.offset[0]+";"+viewport.offset[1]);
-				ctx.fillRect(Math.floor(viewport.offset[0]+x*tileW), Math.floor(viewport.offset[1]+y*tileH), tileW, tileH)
+				ctx.fillRect(Math.floor(viewport.offset[0]+x*tileW), Math.floor(viewport.offset[1]+y*tileH), tileW, tileH);
 			}
 		}
-		ctx.fillStyle = "#0000ff";
 
+		for(var y = viewport.startTile[1]; y <= viewport.endTile[1]; y++)
+		{
+			for(var x = viewport.startTile[0]; x <= viewport.endTile[0]; x++)
+			{
+				// draw Cabin when map == 2
+				if(gameMap[((y*mapW)+x)] == 2)
+				{
+					cabin.src = "img/cabin.svg";
+					ctx.drawImage(cabin, Math.floor(viewport.offset[0]+x*tileW), Math.floor(viewport.offset[1]+y*tileH), tileW*2, (tileH/16)*30);
+				}
+			}
+		}
 
-		//console.log(keysDown);
-		generatePlayer(player.direction, player.moving);
+		generatePlayer(player.direction);
 
-		if(gameMap[toIndex(player.tileTo[0],player.tileTo[1])]==5)
+		//draw the trees on gameMap[x]=0
+		for(var y = viewport.startTile[1]; y <= viewport.endTile[1]; y++)
+		{
+			for(var x = viewport.startTile[0]; x <= viewport.endTile[0]; x++)
+			{
+				switch (gameMap[((y*mapW)+x)]) {
+					case 0:
+						tree.src = "img/tree.svg";
+						ctx.drawImage(tree, Math.floor(viewport.offset[0]+x*tileW)+(tileW/16),Math.floor(viewport.offset[1]+y*tileH)-(tileH/1.5), (tileW/16)*14, (tileH/16)*22);
+						break;
+					default:
+				}
+
+			}
+		}
+
+		if(gameMap[toIndex(player.tileFrom[0],player.tileFrom[1])]==5)
 		{
 			survived = true;
-
 		}
-		image.src = "img/darkness.svg";
-		ctx.drawImage(image, 0, 0, dimension, dimension);
+		darkness.src = "img/darkness.svg";
+		ctx.drawImage(darkness, 0, 0, dimension, dimension);
 
+		// drawing the timer
 		ctx.fillStyle = "#fff";
-		//ctx.fillText("FPS: "+frameLastSecond, 10,20);
-		//ctx.fillText("Sec: "+timer, 70,20);
 		ctx.fillRect(40, 50,dimension-80,5);
 		ctx.fillRect(dimension/15+((dimension-80)/120)*(120-timer), dimension/40, tileW/3, tileH/3);
 		ctx.fillRect(dimension-80, dimension/40,tileW/3, tileH/3);
@@ -524,6 +556,7 @@
 		ctx.fillText("Z", (dimension/13)+((dimension-80)/120)*(120-timer), dimension/13);
 		ctx.fillText("W", dimension-78, dimension/13);
 
+		// end game
 		if(timer == 0 || survived)
 		{
 			story.start = 0;
@@ -534,10 +567,6 @@
 		}
 
 	}
-
-
-
-
 	</script>
 </body>
 </html>
