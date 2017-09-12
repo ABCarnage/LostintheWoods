@@ -6,7 +6,7 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>Lost in the Woods</title>
 	<style media="screen">
-	html, body,canvas {
+	html,body,canvas {
 		margin: 0;
 		padding: 0;
 		border: 0;
@@ -32,13 +32,18 @@
 	function $(id) { return document.getElementById(id); }
 	$("litw").style.backgroundColor = "black";
 	var cW = document.documentElement.clientWidth-2, cH = document.documentElement.clientHeight-2;
-
 	var ctx = null;
 	var tileW = cH/10, tileH = cH/10;
 	var mapW = 20, mapH = 20;
 	var off = 5;
 	var lastSecond = 0, currentSecond = 0, frameCount = 0, frameLastSecond = 0, lastFrameTime = 0;
 	var dimension;
+	var survived = false;
+    var started = false;
+	var image = new Image(100, 100);
+	var notebook = new Image(100, 100);
+	var bloodsplat = new Image(100, 100);
+	var timer = 120;
 
 	if(cW > cH)
 	{
@@ -46,17 +51,12 @@
 		$("litw").setAttribute('height', cH);
 		tileW = Math.floor(cH/off), tileH = Math.floor(cH/off);
 		dimension = cH;
-    } else {
+	} else {
 		$("litw").setAttribute('width', cW);
 		$("litw").setAttribute('height', cW);
 		tileW = Math.floor(cW/off), tileH = Math.floor(cW/off);
 		dimension = cW;
 	}
-	var survived = false;
-    var started = false;
-	var image = new Image(100, 100);
-	var notebook = new Image(100, 100);
-	var timer = 5;
 
 	var keysDown = {
 		37: false,
@@ -64,6 +64,20 @@
 		39: false,
 		40: false
 	}
+
+	var story = {
+		start: 1,
+		beginning: [	["day 55 after the apoc"],
+						["rumors about zombies approaching"],
+						["had to search for food"],
+						["now it's night"],
+						["gotta find my way to my cabin"],
+					],
+		ending: {
+					good:["made it."],
+					bad:["zombies... fuck..."]
+				}
+	};
 
 	var colorCode = ["#000","#431","#49B", "#000", "#E96","#129", "#a22"] // 0 = nothing, 1 = hair brown, 2 = shirt blue, 3 = eye black, 4 = skin rose, 5 = pants blue, 6 = boots red
 	var hairPartL = [
@@ -127,6 +141,7 @@
 	var pantsPartR = [];
 
 
+
 	function cloneReverseArray(PartL, PartR){
 		cloneArray(PartL, PartR);
 
@@ -164,11 +179,11 @@
 		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0,
 		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0,
 		0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-		0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-		0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 2, 3, 1, 1, 1, 0, 1, 1, 0,
+		0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0,
+		0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 2, 3, 0, 1, 1, 0, 1, 1, 0,
 		0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 4, 5, 0, 1, 1, 0, 0, 0, 0,
 		0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0,
-		0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0,
+		0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0,
 		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	];
@@ -263,23 +278,9 @@
 		startMenu();
 	};
 
-	var story = {
-		start: 1,
-		beginning: [	["day 55 after the apoc"],
-						["rumors about zombies approaching"],
-						["had to search for food"],
-						["now it's night"],
-						["gotta find my way to my cabin"],
-					],
-		ending: {
-					good:["made it."],
-					bad:["zombies... fuck..."]
-				}
-	};
-
 
 	function DrawNotebook(){
-		notebook.src = "img/notebook2.svg";
+		notebook.src = "img/notebook.svg";
 		ctx.drawImage(notebook, 0, 0, dimension, dimension);
 		ctx.fillStyle = "#000";
 		ctx.font = "bold "+dimension/65+"pt sans-serif";
@@ -297,8 +298,8 @@
 			} else{
 				var string = story.ending.bad[0].toUpperCase();
 				ctx.fillText(string,(dimension/3.25), (dimension/4.6)+5*(dimension/12));
-				image.src = "img/bloodsplat.svg";
-				ctx.drawImage(image, 0, 0, cH, cH);
+				bloodsplat.src = "img/bloodsplat.svg";
+				ctx.drawImage(bloodsplat, 0, 0, cH, cH);
 
 			}
 				ctx.fillText(player.name,(dimension/3.25), (dimension/4.6)+6*(dimension/12));
@@ -353,33 +354,6 @@
 			}
 
 		});
-
-
-
-	}
-
-	function changeSteps(d,m)
-	{
-		if(m)
-		{
-			var firstStep = "left";
-			var timeStep = (player.delayMove)/player.steps;
-			var timeMoved = (Date.now()-player.timeMoved);
-			console.log(timeStep);
-			/*console.log(timeMoved);
-			console.log(bootPartL);*/
-			console.log(Math.ceil(timeMoved/timeStep)%timeStep);
-			if(Math.ceil(timeMoved/timeStep)%timeStep == 0)
-			{
-				return pantsPartL;
-			} else{
-				return bootPartL;
-			}
-
-		} else
-		{
-			return bootpantsPartL;
-		}
 	}
 
 	function generatePlayer(d, m)
@@ -392,9 +366,6 @@
 		{
 			cloneArray(facePartL,lf);
 			cloneArray(hairPartR,rf);
-			//changeSteps(d,m);
-			//console.log(m);
-			cloneArray(changeSteps(d,m), lb);
 		}
 		if(d =="U")
 		{
@@ -475,22 +446,22 @@
 
 		if(!player.processMovement(currentFrameTime))
 		{
-			if(keysDown[37] && player.tileFrom[0]>0&& gameMap[toIndex(player.tileFrom[0]-1,player.tileFrom[1])]!=0)
+			if(keysDown[37] && player.tileFrom[0]>0&& gameMap[toIndex(player.tileFrom[0]-1,player.tileFrom[1])]==1||gameMap[toIndex(player.tileFrom[0]-1,player.tileFrom[1])]==5)
 			{
 				player.direction = "L";
 				player.tileTo[0]-=1;
 			} else
-			if(keysDown[38] && player.tileFrom[1]>0&& gameMap[toIndex(player.tileFrom[0],player.tileFrom[1]-1)]!=0)
+			if(keysDown[38] && player.tileFrom[1]>0&& gameMap[toIndex(player.tileFrom[0],player.tileFrom[1]-1)]==1||gameMap[toIndex(player.tileFrom[0],player.tileFrom[1]-1)]==5)
 			{
 				player.direction = "U";
 				player.tileTo[1]-=1;
 			} else
-			if(keysDown[39] && player.tileFrom[0]<(mapW-1)&& gameMap[toIndex(player.tileFrom[0]+1,player.tileFrom[1])]!=0)
+			if(keysDown[39] && player.tileFrom[0]<(mapW-1)&& gameMap[toIndex(player.tileFrom[0]+1,player.tileFrom[1])]==1||gameMap[toIndex(player.tileFrom[0]+1,player.tileFrom[1])]==5)
 			{
 				player.direction = "R";
 				player.tileTo[0]+=1;
 			} else
-			if(keysDown[40] && player.tileFrom[1]<(mapH-1)&& gameMap[toIndex(player.tileFrom[0],player.tileFrom[1]+1)]!=0)
+			if(keysDown[40] && player.tileFrom[1]<(mapH-1)&& gameMap[toIndex(player.tileFrom[0],player.tileFrom[1]+1)]==1||gameMap[toIndex(player.tileFrom[0],player.tileFrom[1]+1)]==5)
 			{
 				player.direction = "D";
 				player.tileTo[1]+=1;
@@ -516,7 +487,7 @@
 			{
 				switch (gameMap[((y*mapW)+x)]) {
 					case 0:
-						ctx.fillStyle = "#3A0";
+						ctx.fillStyle = "#060";
 						break;
 					case 1:
 						ctx.fillStyle = "#650";
@@ -534,25 +505,25 @@
 		//console.log(keysDown);
 		generatePlayer(player.direction, player.moving);
 
-		if(gameMap[toIndex(player.tileTo[0],player.tileTo[1])]==4)
+		if(gameMap[toIndex(player.tileTo[0],player.tileTo[1])]==5)
 		{
 			survived = true;
 
 		}
-		image.src = "img/tekening5.svg";
-		ctx.drawImage(image, 0, 0, cH, cH);
+		image.src = "img/darkness.svg";
+		ctx.drawImage(image, 0, 0, dimension, dimension);
 
-		ctx.fillStyle = "#ff0000";
-		ctx.fillText("FPS: "+frameLastSecond, 10,20);
+		ctx.fillStyle = "#fff";
+		//ctx.fillText("FPS: "+frameLastSecond, 10,20);
+		//ctx.fillText("Sec: "+timer, 70,20);
+		ctx.fillRect(40, 50,dimension-80,5);
+		ctx.fillRect(dimension/15+((dimension-80)/120)*(120-timer), dimension/40, tileW/3, tileH/3);
+		ctx.fillRect(dimension-80, dimension/40,tileW/3, tileH/3);
+		ctx.fillStyle="#000";
+		ctx.font = "bold "+dimension/21+"pt sans-serif";
+		ctx.fillText("Z", (dimension/13)+((dimension-80)/120)*(120-timer), dimension/13);
+		ctx.fillText("W", dimension-78, dimension/13);
 
-		ctx.fillStyle = "#ff0000";
-		ctx.fillText("Sec: "+timer, 70,20);
-
-		/*if(survived)
-		{
-			ctx.fillStyle = "#ff7777";
-			ctx.fillText("You survived!YiHa", 50,100);
-		}*/
 		if(timer == 0 || survived)
 		{
 			story.start = 0;
