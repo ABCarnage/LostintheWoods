@@ -4,6 +4,9 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<head profile="http://www.w3.org/2005/10/profile">
+	<link rel=“icon” href=“img/favicon.ico” type=“image/x-icon”/>
+	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
 	<title>Lost in the Woods</title>
 	<style media="screen">
 	html,body,canvas {
@@ -34,7 +37,7 @@
 	var cW = document.documentElement.clientWidth-2, cH = document.documentElement.clientHeight-2;
 	var ctx = null;
 	var tileW = cH/10, tileH = cH/10;
-	var mapW = 30, mapH = 32;
+	var mapW = 22, mapH = 23;
 	var off = 5;
 	var lastSecond = 0, currentSecond = 0, frameCount = 0, frameLastSecond = 0, lastFrameTime = 0;
 	var dimension;
@@ -45,6 +48,11 @@
 	var bloodsplat = new Image(100, 100);
 	var tree = new Image (14,22);
 	var cabin = new Image(32,30);
+	bloodsplat.src = "img/bloodsplat.svg";
+	notebook.src = "img/notebook.svg";
+	cabin.src = "img/cabin.svg";
+	tree.src = "img/tree.svg";
+	darkness.src = "img/darkness.svg";
 	var timer = 120;
 
 	if(cW > cH)
@@ -167,38 +175,29 @@
 	var player = new Character();
 
 	var gameMap = [
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,1,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,1,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,2,3,0,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,4,5,0,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,1,1,1,0,1,0,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,1,1,1,0,0,1,1,1,1,1,1,1,0,1,0,1,1,1,0,0,
+		0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,1,0,0,
+		0,0,1,0,1,1,1,0,0,1,0,1,0,1,0,1,1,1,1,1,0,0,
+		0,0,1,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,1,0,0,
+		0,0,1,1,1,0,1,0,0,0,0,1,0,0,0,1,0,0,1,1,0,0,
+		0,0,1,0,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,
+		0,0,1,0,1,0,0,1,1,1,0,1,0,0,0,0,1,1,1,0,0,0,
+		0,0,1,0,1,1,0,0,0,0,1,1,0,0,1,1,1,0,1,1,0,0,
+		0,0,1,0,0,1,1,1,1,0,1,0,1,0,0,0,0,1,0,1,0,0,
+		0,0,0,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,
+		0,0,1,0,1,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,
+		0,0,1,0,1,0,1,1,1,0,1,0,0,1,1,1,1,0,1,1,0,0,
+		0,0,1,0,1,0,0,0,0,0,1,1,1,1,0,0,1,1,1,0,0,0,
+		0,0,1,0,1,1,1,1,0,0,1,0,1,0,0,1,1,0,1,0,0,0,
+		0,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,0,0,1,1,0,0,
+		0,0,1,0,1,0,0,1,1,1,1,0,1,1,1,0,0,1,1,0,0,0,
+		0,0,1,1,1,1,1,1,0,0,1,2,3,1,1,1,1,0,0,0,0,0,
+		0,0,1,0,0,0,0,0,0,0,0,4,5,0,1,0,1,1,0,0,0,0,
+		0,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	];
 
 
@@ -294,14 +293,14 @@
 	{
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, dimension, dimension);
-		requestAnimationFrame(DrawNotebook);
+		window.requestAnimationFrame(DrawNotebook);
 
 		window.addEventListener("keydown", function(e){
 			var keyC = e.keyCode;
 			if(keyC==32 && !started)
 			{
                 started = true;
-				requestAnimationFrame(drawGame);
+				window.requestAnimationFrame(drawGame);
 
 
 				window.addEventListener("keydown", function(e){
@@ -335,10 +334,10 @@
 
 	// draw notebook for beginning and ending
 	function DrawNotebook(){
-		notebook.src = "img/notebook.svg";
+
 		ctx.drawImage(notebook, 0, 0, dimension, dimension);
 		ctx.fillStyle = "#000";
-		ctx.font = "bold "+dimension/65+"pt sans-serif";
+		ctx.font = "bold "+dimension/70+"pt Arial";
 		for(var i=0; i<story.beginning.length; i++)
 		{
 			var string = story.beginning[i][0].toUpperCase();
@@ -353,18 +352,17 @@
 			} else{
 				var string = story.ending.bad[0].toUpperCase();
 				ctx.fillText(string,(dimension/3.25), (dimension/4.6)+5*(dimension/12));
-				bloodsplat.src = "img/bloodsplat.svg";
 				ctx.drawImage(bloodsplat, 0, 0, cH, cH);
 
 			}
 				ctx.fillText(player.name,(dimension/3.25), (dimension/4.6)+6*(dimension/12));
 		} else {
 			ctx.fillStyle = "#FFF";
-			ctx.font = "bold "+dimension/40+"pt sans-serif";
+			ctx.font = "bold "+dimension/40+"pt Arial";
 			ctx.fillText("SPACE TO START", dimension/2.7, dimension/1.1);
 		}
 
-		requestAnimationFrame(DrawNotebook);
+		window.requestAnimationFrame(DrawNotebook);
 	};
 
 	function toIndex(x, y)
@@ -433,12 +431,11 @@
 				}
 			}
 		}
-
 	}
 
 	function drawGame()
 	{
-		ctx.font = "bold 10pt sans-serif";
+		ctx.font = "bold 10pt Arial";
 		if (ctx == null)
 		{
 			return;
@@ -492,6 +489,7 @@
         ctx.fillStyle = "#000";
         ctx.fillRect(0,0,viewport.screen[0],viewport.screen[1]);
 
+		//draw forest and path tiles
 		for(var y = viewport.startTile[1]; y <= viewport.endTile[1]; y++)
 		{
 			for(var x = viewport.startTile[0]; x <= viewport.endTile[0]; x++)
@@ -500,7 +498,6 @@
 					case 0:
 						ctx.fillStyle = "#060";
 						break;
-					case 2:
 					default:
 						ctx.fillStyle = "#650";
 				}
@@ -508,14 +505,14 @@
 			}
 		}
 
+		// draw Cabin when map == 2
 		for(var y = viewport.startTile[1]; y <= viewport.endTile[1]; y++)
 		{
 			for(var x = viewport.startTile[0]; x <= viewport.endTile[0]; x++)
 			{
-				// draw Cabin when map == 2
+
 				if(gameMap[((y*mapW)+x)] == 2)
 				{
-					cabin.src = "img/cabin.svg";
 					ctx.drawImage(cabin, Math.floor(viewport.offset[0]+x*tileW), Math.floor(viewport.offset[1]+y*tileH), tileW*2, (tileH/16)*30);
 				}
 			}
@@ -530,7 +527,6 @@
 			{
 				switch (gameMap[((y*mapW)+x)]) {
 					case 0:
-						tree.src = "img/tree.svg";
 						ctx.drawImage(tree, Math.floor(viewport.offset[0]+x*tileW)+(tileW/16),Math.floor(viewport.offset[1]+y*tileH)-(tileH/1.5), (tileW/16)*14, (tileH/16)*22);
 						break;
 					default:
@@ -538,22 +534,23 @@
 
 			}
 		}
-
+		// found cabin?
 		if(gameMap[toIndex(player.tileFrom[0],player.tileFrom[1])]==5)
 		{
 			survived = true;
 		}
-		darkness.src = "img/darkness.svg";
+
+		// draw darkness
 		ctx.drawImage(darkness, 0, 0, dimension, dimension);
 
 		// drawing the timer
 		ctx.fillStyle = "#fff";
 		ctx.fillRect(40, 50,dimension-80,5);
-		ctx.fillRect(dimension/15+((dimension-80)/120)*(120-timer), dimension/40, tileW/3, tileH/3);
+		ctx.fillRect(dimension/15+((dimension-160)/120)*(120-(timer*1.0)), dimension/40, tileW/3, tileH/3);
 		ctx.fillRect(dimension-80, dimension/40,tileW/3, tileH/3);
 		ctx.fillStyle="#000";
-		ctx.font = "bold "+dimension/21+"pt sans-serif";
-		ctx.fillText("Z", (dimension/13)+((dimension-80)/120)*(120-timer), dimension/13);
+		ctx.font = "bold "+dimension/21+"pt Arial";
+		ctx.fillText("Z", (dimension/13)+((dimension-160)/120)*(120-(timer*1.0)), dimension/13);
 		ctx.fillText("W", dimension-78, dimension/13);
 
 		// end game
@@ -563,7 +560,7 @@
 			DrawNotebook();
 		} else if(lastFrameTime = currentFrameTime)
 		{
-			requestAnimationFrame(drawGame);
+			window.requestAnimationFrame(drawGame);
 		}
 
 	}
